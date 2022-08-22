@@ -9,36 +9,7 @@ import {
   useParams
 } from 'react-router-dom';
 
-import styled from 'styled-components';
-
-const Button = styled.button`
-  background: Bisque;
-  font-size: 1em;
-  margin: 1em;
-  padding: 0.25em 1em;
-  border: 2px solid Chocolate;
-  border-radius: 3px;
-`
-
-const Input = styled.input`
-  margin: 0.25em;
-`
-
-const Page = styled.div`
-  padding: 1em;
-  background: papayawhip;  
-`
-
-const Navigation = styled.div`
-  background: BurlyWood;
-  padding: 1em;
-`
-
-const Footer = styled.div`
-  background: Chocolate;
-  padding: 1em;
-  margin-top: 1em;
-`
+import { Alert, AppBar, Button, Container, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Toolbar } from '@mui/material';
 
 const Home = () => (
   <div>
@@ -73,13 +44,22 @@ const Note = ({ note }) => {
 const Notes = ({ notes }) => (
   <div>
     <h2>Notes</h2>
-    <ul>
-      {notes.map(note =>
-        <li key={note.id}>
-          <Link to={`/notes/${note.id}`}>{note.content}</Link>
-        </li>
-      )}
-    </ul>
+    <TableContainer component={Paper}>
+      <Table>
+        <TableBody>
+          {notes.map(note => (
+            <TableRow key={note.id}>
+              <TableCell>
+                <Link to={`/notes/${note.id}`}>{note.content}</Link>
+              </TableCell>
+              <TableCell>
+                {note.user}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   </div>
 )
 
@@ -99,6 +79,7 @@ const Login = (props) => {
   
   const onSubmit = (event) => {
     event.preventDefault()
+    console.log("You working onSubmit", event)
     props.onLogin(event.target.username.value)
     navigate('/')
   }
@@ -107,13 +88,17 @@ const Login = (props) => {
     <div>
       <h2>login</h2>
       <form onSubmit={onSubmit}>
-        <div>
-          username: <Input name="username" />
+      <div>
+          <TextField label="username" name="username" />
         </div>
         <div>
-          password: <Input type='password' />
+          <TextField label="password" type='password' />
         </div>
-        <Button type="submit">login</Button>
+        <div>
+          <Button variant="contained" color="primary" type="submit">
+            login
+          </Button>
+        </div>
       </form>
     </div>
   )
@@ -148,8 +133,14 @@ const App = () => {
     : null
 
   const [user, setUser] = useState(null)
+  const [message, setMessage] = useState(null)
+
   const login = (user) => {
     setUser(user)
+    setMessage(`welcome ${user}`)
+    setTimeout(() => {
+      setMessage(null)
+    }, 10000)
   }
 
 
@@ -157,17 +148,27 @@ const App = () => {
     padding: 5
   }
   return (
-    <Page>
-      <Navigation>
-        <Link style={padding} to="/">home</Link>
-        <Link style={padding} to="/notes">notes</Link>
-        <Link style={padding} to="/users">users</Link>
-        {user
-          ? <em>{user} logged in</em>
-          : <Link style={padding} to="/login">login</Link>
-
-        }
-      </Navigation>
+    <Container>
+      {(message && <Alert severity="success">{message}</Alert>  )}
+      <AppBar position="static">
+        <Toolbar>
+          <Button color="inherit" component={Link} to="/">
+            home
+          </Button>
+          <Button color="inherit" component={Link} to="/notes">
+            notes
+          </Button>
+          <Button color="inherit" component={Link} to="/users">
+            users
+          </Button>   
+          {user
+            ? <em>{user} logged in</em>
+            : <Button color="inherit" component={Link} to="/login">
+                login
+              </Button>
+          }                              
+        </Toolbar>
+      </AppBar>
 
       <Routes>
         <Route path="/notes/:id" element={<Note note={note} />} />
@@ -177,10 +178,10 @@ const App = () => {
         <Route path="/" element={<Home />} />
       </Routes>
 
-      <Footer>
+      <div>
         <i>Note app, copying some code...</i>
-      </Footer>
-    </Page>
+      </div>
+    </Container>
   )
 }
 ReactDOM.createRoot(document.getElementById('root')).render(

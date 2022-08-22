@@ -1,4 +1,10 @@
 import React, { useState } from 'react';
+import Alert from 'react-bootstrap/Alert';
+import Button from "react-bootstrap/Button";
+import Form from 'react-bootstrap/Form';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
+import Table from 'react-bootstrap/Table';
 import ReactDOM from 'react-dom/client';
 import {
   BrowserRouter as Router,
@@ -9,36 +15,7 @@ import {
   useParams
 } from 'react-router-dom';
 
-import styled from 'styled-components';
-
-const Button = styled.button`
-  background: Bisque;
-  font-size: 1em;
-  margin: 1em;
-  padding: 0.25em 1em;
-  border: 2px solid Chocolate;
-  border-radius: 3px;
-`
-
-const Input = styled.input`
-  margin: 0.25em;
-`
-
-const Page = styled.div`
-  padding: 1em;
-  background: papayawhip;  
-`
-
-const Navigation = styled.div`
-  background: BurlyWood;
-  padding: 1em;
-`
-
-const Footer = styled.div`
-  background: Chocolate;
-  padding: 1em;
-  margin-top: 1em;
-`
+//import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Home = () => (
   <div>
@@ -73,13 +50,17 @@ const Note = ({ note }) => {
 const Notes = ({ notes }) => (
   <div>
     <h2>Notes</h2>
-    <ul>
-      {notes.map(note =>
-        <li key={note.id}>
-          <Link to={`/notes/${note.id}`}>{note.content}</Link>
-        </li>
-      )}
-    </ul>
+    <Table striped bordered>
+      <tbody>
+        {notes.map(note =>
+          <tr key={note.id}>
+            <td>
+              <Link to={`/notes/${note.id}`}>{note.content}</Link>
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </Table>
   </div>
 )
 
@@ -106,15 +87,20 @@ const Login = (props) => {
   return (
     <div>
       <h2>login</h2>
-      <form onSubmit={onSubmit}>
-        <div>
-          username: <Input name="username" />
-        </div>
-        <div>
-          password: <Input type='password' />
-        </div>
-        <Button type="submit">login</Button>
-      </form>
+      <Form onSubmit={onSubmit}>
+        <Form.Group>
+          <Form.Label>username:</Form.Label>
+          <Form.Control
+            type="text"
+            name="username"
+          />
+          <Form.Label>password:</Form.Label>
+          <Form.Control
+            type="password"
+          />
+        <Button variant="primary" type="submit">login</Button>
+        </Form.Group>
+      </Form>
     </div>
   )
 }
@@ -148,8 +134,15 @@ const App = () => {
     : null
 
   const [user, setUser] = useState(null)
+  const [message, setMessage] = useState(null)
+
+
   const login = (user) => {
     setUser(user)
+    setMessage(`welcome ${user}`)
+    setTimeout(() => {
+      setMessage(null)
+    }, 10000)
   }
 
 
@@ -157,17 +150,34 @@ const App = () => {
     padding: 5
   }
   return (
-    <Page>
-      <Navigation>
-        <Link style={padding} to="/">home</Link>
-        <Link style={padding} to="/notes">notes</Link>
-        <Link style={padding} to="/users">users</Link>
-        {user
-          ? <em>{user} logged in</em>
-          : <Link style={padding} to="/login">login</Link>
-
-        }
-      </Navigation>
+    <div className="container">
+      {(message &&
+        <Alert variant="success">
+          {message}
+        </Alert>  
+      )}
+      <Navbar collapseOnSelect expand="lg" bg="light" variant="light">
+        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+        <Navbar.Collapse id="responsive-navbar-nav">
+          <Nav className="me-auto">
+            <Nav.Link href="#" as="span">
+              <Link style={padding} to="/">home</Link>
+            </Nav.Link>
+            <Nav.Link href="#" as="span">
+              <Link style={padding} to="/notes">notes</Link>
+            </Nav.Link>
+            <Nav.Link href="#" as="span">
+              <Link style={padding} to="/users">users</Link>
+            </Nav.Link>
+            <Nav.Link href="#" as="span">
+              {user
+                ? <em>{user} logged in</em>
+                : <Link style={padding} to="/login">login</Link>
+              }
+            </Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
 
       <Routes>
         <Route path="/notes/:id" element={<Note note={note} />} />
@@ -177,10 +187,10 @@ const App = () => {
         <Route path="/" element={<Home />} />
       </Routes>
 
-      <Footer>
+      <div>
         <i>Note app, copying some code...</i>
-      </Footer>
-    </Page>
+      </div>
+    </div>
   )
 }
 ReactDOM.createRoot(document.getElementById('root')).render(
